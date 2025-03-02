@@ -7,17 +7,17 @@ import java.util.ArrayList;
  * prior to submission.
  */
 public class MinimaxAI {
-    private int maxDepth;  // The maximum number of ply (half-moves) to search
+    private int searchDepth;  // The maximum number of ply (half-moves) to search
     
     public MinimaxAI() {
         this(4);
     }
     
     /**
-     * @param maxDepth The maximum depth to search in the game tree.
+     * @param searchDepth The maximum depth to search in the game tree.
      */
-    public MinimaxAI(int maxDepth) {
-        this.maxDepth = maxDepth;
+    public MinimaxAI(int searchDepth) {
+        this.searchDepth = searchDepth;
     }
     
     /**
@@ -28,7 +28,7 @@ public class MinimaxAI {
     public Pair findBestMove(GameState state) {
         System.out.println("\nLegal moves: " + state.legalMoves());
         
-        Pair result = maxValue(state, 0);
+        Pair result = maxValue(state, searchDepth);
         
         System.out.println("\nChosen move: " + result.move + " with minimax value: " + result.score);
         System.out.println("----------------------------------------");
@@ -37,15 +37,38 @@ public class MinimaxAI {
     }
     
     /**
+     * Is the game over?
+     * @param state
+     * @return True if terminal, false otherwise.
+     */
+    private boolean isTerminal(GameState state) {
+        return state.isFinished();
+    }
+    
+    /**
+     * Returns the utility value of a terminal state.
+     * @param state
+     * @return The utility value.
+     */
+    private int utility(GameState state) {
+        return evaluateBoard(state);
+    }
+    
+    /**
      * MAX-VALUE function from the pseudocode.
      * @param state
-     * @param depth
+     * @param remainingDepth The remaining depth to search
      * @return A Pair containing the best move and its score.
      */
-    private Pair maxValue(GameState state, int depth) {
-        if (isTerminal(state, depth)) {
+    private Pair maxValue(GameState state, int remainingDepth) {
+        if (isTerminal(state)) {
             // If the game is over, return the utility value of the state
             return new Pair(null, utility(state));
+        }
+        
+        if (remainingDepth <= 0) {
+            // If we've reached the depth limit, use the evaluation function
+            return new Pair(null, evaluateBoard(state));
         }
         
         ArrayList<Position> actions = state.legalMoves();
@@ -53,9 +76,8 @@ public class MinimaxAI {
         if (actions.isEmpty()) {
             // If no legal moves, pass turn to opponent
             System.out.println("No legal moves available for MAX. Passing turn.");
-            GameState nextState = new GameState(state.getBoard(), state.getPlayerInTurn());
-            nextState.changePlayer();
-            return minValue(nextState, depth + 1);
+            state.changePlayer();
+            return minValue(state, remainingDepth - 1);
         }
         
         int v = Integer.MIN_VALUE; // like minus infinity
@@ -66,7 +88,7 @@ public class MinimaxAI {
         for (Position a : actions) {
             GameState nextState = result(state, a);
             
-            Pair minValueResult = minValue(nextState, depth + 1);
+            Pair minValueResult = minValue(nextState, remainingDepth - 1);
             
             System.out.println("Move " + a + " has minimax value: " + minValueResult.score);
             
@@ -82,13 +104,18 @@ public class MinimaxAI {
     /**
      * MIN-VALUE function from the pseudocode.
      * @param state
-     * @param depth
+     * @param remainingDepth The remaining depth to search
      * @return A Pair containing the best move and its score.
      */
-    private Pair minValue(GameState state, int depth) {
-        if (isTerminal(state, depth)) {
-            // If no legal moves, pass turn to opponent
+    private Pair minValue(GameState state, int remainingDepth) {
+        if (isTerminal(state)) {
+            // If the game is over, return the utility value of the state
             return new Pair(null, utility(state));
+        }
+        
+        if (remainingDepth <= 0) {
+            // If we've reached the depth limit, use the evaluation function
+            return new Pair(null, evaluateBoard(state));
         }
         
         ArrayList<Position> actions = state.legalMoves();
@@ -96,9 +123,8 @@ public class MinimaxAI {
         if (actions.isEmpty()) {
             // If no legal moves, pass turn to opponent
             System.out.println("No legal moves available for MIN. Passing turn.");
-            GameState nextState = new GameState(state.getBoard(), state.getPlayerInTurn());
-            nextState.changePlayer();
-            return maxValue(nextState, depth + 1);
+            state.changePlayer();
+            return maxValue(state, remainingDepth - 1);
         }
         
         int v = Integer.MAX_VALUE; // like plus infinity
@@ -107,7 +133,7 @@ public class MinimaxAI {
         for (Position a : actions) {
             GameState nextState = result(state, a);
             
-            Pair maxValueResult = maxValue(nextState, depth + 1);
+            Pair maxValueResult = maxValue(nextState, remainingDepth - 1);
             
             if (maxValueResult.score < v) {
                 v = maxValueResult.score;
@@ -116,25 +142,6 @@ public class MinimaxAI {
         }
         
         return new Pair(move, v);
-    }
-    
-    /**
-     * Is the game over or have we reached the max depth?
-     * @param state
-     * @param depth
-     * @return True if terminal, false otherwise.
-     */
-    private boolean isTerminal(GameState state, int depth) {
-        return depth >= maxDepth || state.isFinished();
-    }
-    
-    /**
-     * Returns the utility value of a state.
-     * @param state
-     * @return The utility value.
-     */
-    private int utility(GameState state) {
-        return evaluateBoard(state);
     }
     
     /**
