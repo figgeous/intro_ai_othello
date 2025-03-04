@@ -1,3 +1,5 @@
+package pp;
+import provided.*;
 /**
  * Implementation of our bot. Uses the minimax algorithm to make decisions.
  */

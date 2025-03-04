@@ -1,3 +1,4 @@
+package provided;
 /**
  * Class for representing a position on a 2-dimensional game board
  * @author Mai Ajspur

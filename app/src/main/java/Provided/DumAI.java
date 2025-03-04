@@ -1,5 +1,5 @@
+package provided;
 import java.util.ArrayList;
-
 /**
  * A simple OthelloAI-implementation. The method to decide the next move just
  * returns the first legal move that it finds. 

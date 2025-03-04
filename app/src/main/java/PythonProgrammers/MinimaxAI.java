@@ -1,4 +1,6 @@
+package pp; //pp = Python programmers
 import java.util.ArrayList;
+import provided.*;
 
 /**
  * Based on the pseudocode for the minimax algorithm from pg. 196 of the textbook.
