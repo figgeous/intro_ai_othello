@@ -28,12 +28,12 @@ public class MinimaxAI {
      * @return A Pair containing the best move and its score.
      */
     public Pair findBestMove(GameState state) {
-        System.out.println("\nLegal moves: " + state.legalMoves());
+        // System.out.println("\nLegal moves: " + state.legalMoves());
         
         Pair result = maxValue(state, searchDepth);
         
-        System.out.println("\nChosen move: " + result.move + " with minimax value: " + result.score);
-        System.out.println("----------------------------------------");
+        // System.out.println("\nChosen move: " + result.move + " with minimax value: " + result.score);
+        // System.out.println("----------------------------------------");
         
         return result;
     }
@@ -85,14 +85,14 @@ public class MinimaxAI {
         int v = Integer.MIN_VALUE; // like minus infinity
         Position move = null;
         
-        System.out.println("\nEvaluating moves for player " + (state.getPlayerInTurn() == 1 ? "Black" : "White") + " (MAX):");
+        //System.out.println("\nEvaluating moves for player " + (state.getPlayerInTurn() == 1 ? "Black" : "White") + " (MAX):");
         
         for (Position a : actions) {
             GameState nextState = result(state, a);
             
             Pair minValueResult = minValue(nextState, remainingDepth - 1);
             
-            System.out.println("Move " + a + " has minimax value: " + minValueResult.score);
+            //System.out.println("Move " + a + " has minimax value: " + minValueResult.score);
             
             if (minValueResult.score > v) {
                 v = minValueResult.score;

@@ -24,7 +24,7 @@ public class OthelloGUI extends JComponent implements MouseListener
     private boolean humanPlayer;	// Whether a human player is playing or not
     private IOthelloAI ai1;			// The AI for player 1 if there are no human player
     private IOthelloAI ai2;			// The AI for player 2 
-
+	private Timer timer; 			// The timer used to refresh the UI.
     // Images for drawing the game board
     private Image 		part, blackPion, whitePion, background;
     private Image 		border_left, border_right, border_top, border_bottom;
@@ -63,6 +63,8 @@ public class OthelloGUI extends JComponent implements MouseListener
     		this.ai1 = ai1;
     	this.ai2=ai2;
     	this.addMouseListener(this);
+		this.timer = new Timer(500, e -> gameTick());
+		this.timer.start();
     }
 
     /**
@@ -105,8 +107,38 @@ public class OthelloGUI extends JComponent implements MouseListener
     			g.drawImage(whiteWon, size*imgSize/2-(imgSize/2), size*imgSize/2+(imgSize/4), this);
     		else
     			g.drawImage(tie, size*imgSize/2-(imgSize/2), size*imgSize/2+(imgSize/4), this);
-    	}		
+    	}
+				
     }
+
+	private void gameTick(){
+		int currentPlayer = state.getPlayerInTurn();
+    	if ( !state.isFinished() ){
+    		Position place = getPlaceForNextTokenAI();
+    		if ( state.insertToken(place) ){ // Chosen move is legal
+				boolean nextPlayerCannotMove = state.legalMoves().isEmpty();
+   				if ( nextPlayerCannotMove ){ // The next player cannot move
+					repaint();
+   					state.changePlayer();
+   					if ( humanPlayer ){ // If there is a human involved, (s)he needs to know this
+   	  					boolean canMoveAfterwards = !state.legalMoves().isEmpty();
+   	   					if ( canMoveAfterwards ){
+   	   						String message = currentPlayer == 1 ? "Your opponent has no legal moves. It is your turn again." 
+   	   													 	    : "You have no legal moves. Your opponent will make another move (click again).";
+   	   						JOptionPane.showMessageDialog(this, message);
+   	   					}  						
+   					}
+   				}
+ 			}
+   			else 
+   				illegalMoveAttempted(place); 		
+    		repaint();
+    	}
+		else{
+			
+		}
+	}
+	
 
     public void mouseClicked(MouseEvent e){
     	int currentPlayer = state.getPlayerInTurn();
@@ -137,6 +169,13 @@ public class OthelloGUI extends JComponent implements MouseListener
      * Get a position to place the next token (i.e. read mouse click if human
      * player is in turn, otherwise ask corresponding AI)
      */
+	private Position getPlaceForNextTokenAI(){
+		if ( state.getPlayerInTurn() == 2 ) 
+			return ai2.decideMove(state);
+		else
+			return ai1.decideMove(state);
+	}
+
     private Position getPlaceForNextToken(MouseEvent e){
     	if ( state.getPlayerInTurn() == 2 ) 
 			return ai2.decideMove(state);
