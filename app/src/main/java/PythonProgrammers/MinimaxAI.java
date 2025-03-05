@@ -27,15 +27,17 @@ public class MinimaxAI {
      * @param state
      * @return A Pair containing the best move and its score.
      */
-    public Pair findBestMove(GameState state) {
+    public Pair findBestMove(GameState state, int player) {
         // System.out.println("\nLegal moves: " + state.legalMoves());
         
-        Pair result = maxValue(state, searchDepth);
-        
+        if(player == 1) //we are black
+            return maxValue(state, searchDepth);
+        else if(player == 2)//we are white
+            return minValue(state, searchDepth);
+        else
+            return new Pair(null, 0);
         // System.out.println("\nChosen move: " + result.move + " with minimax value: " + result.score);
         // System.out.println("----------------------------------------");
-        
-        return result;
     }
     
     /**

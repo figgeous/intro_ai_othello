@@ -5,6 +5,9 @@ import javax.swing.*;
 import java.io.IOException;
 import java.lang.reflect.*;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * The main class that parses command line parameters and initializes the Othello game.
  *
@@ -14,11 +17,16 @@ import java.lang.reflect.*;
 public class Othello
 {
     public static String HUMAN_CMD = "human";
-	
+	static int winner = -1;
 	/**
      * Valid arguments: ai1 ai2 size 
      * Standard values for size (length of square board) is 8
      */
+
+    public static void resetGame(){
+        winner = -1;
+    }
+
     public static void main(String[] args)
     {
         IOthelloAI ai1 = null;
@@ -80,8 +88,9 @@ public class Othello
         }
         
         try{
-        	OthelloGUI g = new OthelloGUI(ai1, ai2, size, ai1 == null);
-
+        	CountDownLatch gameLatch = new CountDownLatch(1);
+            OthelloGUI g = new OthelloGUI(ai1, ai2, size, ai1 == null);
+            g.setGameLatch(gameLatch);
         	// Setup of the frame containing the game
         	JFrame f = new JFrame();
         	f.setSize((size+2)*100,(size+2)*100);
@@ -89,10 +98,21 @@ public class Othello
         	f.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
         	f.getContentPane().add(g);    
         	f.setVisible(true);
+            
+            gameLatch.await(); //Ensure the game has terminated before we check who is the winner
+            winner = g.getWinner();
+            System.out.println("we have found a winner");
+            
         }
-        catch (IOException e){
-        	errMsg = "Images not found at " + System.getProperty("user.dir") + "\\imgs";
-        	err = true;
+        catch (Exception e){
+        	if(e instanceof IOException){
+                errMsg = "Images not found at " + System.getProperty("user.dir") + "\\imgs";
+                err = true;
+            }
+            else if(e instanceof InterruptedException){
+                errMsg = "Something went wrong with the CountDownLatch/await call";
+                err = true;
+            }
         }
 
         if(err) {
@@ -104,6 +124,11 @@ public class Othello
     /**
      * Printing error and help-message
      */
+
+    public static int getWinner(){
+        return winner;
+    }
+
     public static void printHelp(String errMsg) {
         if(!errMsg.equals("")) {
             System.err.println(errMsg);

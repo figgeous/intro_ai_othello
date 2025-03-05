@@ -53,3 +53,9 @@ tasks.register<JavaExec>("DumAI") {
     classpath = sourceSets.main.get().runtimeClasspath
     args = listOf("pp.OurBot", "provided.DumAI")
 }
+
+tasks.register<JavaExec>("OurBot") {
+    mainClass = "provided.Othello"
+    classpath = sourceSets.main.get().runtimeClasspath
+    args = listOf("human", "pp.OurBot")
+}

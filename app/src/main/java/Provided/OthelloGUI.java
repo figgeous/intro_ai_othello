@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * GUI to show the Othello game and to listen for input for the user/human player. When it is the user's turn, 
@@ -25,6 +27,8 @@ public class OthelloGUI extends JComponent implements MouseListener
     private IOthelloAI ai1;			// The AI for player 1 if there are no human player
     private IOthelloAI ai2;			// The AI for player 2 
 	private Timer timer; 			// The timer used to refresh the UI.
+	private CountDownLatch latch;   // used to signal when the game has terminated
+
     // Images for drawing the game board
     private Image 		part, blackPion, whitePion, background;
     private Image 		border_left, border_right, border_top, border_bottom;
@@ -63,9 +67,27 @@ public class OthelloGUI extends JComponent implements MouseListener
     		this.ai1 = ai1;
     	this.ai2=ai2;
     	this.addMouseListener(this);
-		this.timer = new Timer(500, e -> gameTick());
+		this.timer = new Timer(100, e -> gameTick()); //ensures the game window is updated independent of mouse events
 		this.timer.start();
     }
+
+	public void setGameLatch(CountDownLatch latch){
+		this.latch = latch;
+	}
+
+	public void onGameEnd(){
+		if(latch != null){
+			latch.countDown();
+		}
+	}
+
+	public int getWinner(){
+		int[] tokens = state.countTokens();
+		if(state.isFinished())
+			return tokens[0] == tokens[1] ? 0 : tokens[0] > tokens[1]? 1: 2; //0 for draw, 1 for black, 2 for white.
+		else
+			return -1; //-1 if getWinner is called at incorrent moment. 
+	}	
 
     /**
      * Draws the current game board and shows if someone won.
@@ -135,7 +157,7 @@ public class OthelloGUI extends JComponent implements MouseListener
     		repaint();
     	}
 		else{
-			
+			onGameEnd();
 		}
 	}
 	
@@ -159,10 +181,14 @@ public class OthelloGUI extends JComponent implements MouseListener
    					}
    				}
  			}
-   			else 
+   			else{
    				illegalMoveAttempted(place); 		
+			} 
     		repaint();
     	}
+		else{
+			onGameEnd();
+		}
     }
     
     /**

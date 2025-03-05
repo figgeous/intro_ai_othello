@@ -14,7 +14,7 @@ public class OurBot implements IOthelloAI {
     }
     
     public OurBot() {
-        this(4); //  4 ply is two full moves
+        this(6); //  4 ply is two full moves
     }
     
     /**
@@ -23,7 +23,7 @@ public class OurBot implements IOthelloAI {
      */
     @Override
     public Position decideMove(GameState state) {
-        MinimaxAI.Pair bestMove = minimaxAI.findBestMove(state);
+        MinimaxAI.Pair bestMove = minimaxAI.findBestMove(state, state.getPlayerInTurn());
         return bestMove.move;
     }
 } 
