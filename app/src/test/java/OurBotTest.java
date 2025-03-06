@@ -19,8 +19,8 @@ public class OurBotTest{
     }
 
     @Test
-    public void WinningAsBlack_n6() throws InterruptedException{
-        String[] args = {"pp.OurBot","provided.DumAI", "6"};
+    public void WinningAsBlack_n8() throws InterruptedException{
+        String[] args = {"pp.OurBot","provided.DumAI", "8"};
         // Run main method    
         Thread gameThread =  new Thread(() -> provided.Othello.main(args));
         gameThread.start();
@@ -32,8 +32,8 @@ public class OurBotTest{
     }
 
     @Test
-    public void WinningAsWhite_n6() throws InterruptedException{
-        String[] args = {"provided.DumAI", "pp.OurBot", "6"};
+    public void WinningAsWhite_n8() throws InterruptedException{
+        String[] args = {"provided.DumAI", "pp.OurBot", "8"};
         // Run main method    
         Thread gameThread =  new Thread(() -> provided.Othello.main(args));
         gameThread.start();

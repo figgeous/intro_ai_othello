@@ -31,9 +31,9 @@ public class MinimaxAI {
         // System.out.println("\nLegal moves: " + state.legalMoves());
         
         if(player == 1) //we are black
-            return maxValue(state, searchDepth);
+            return maxValue(state, searchDepth, Integer.MIN_VALUE, Integer.MAX_VALUE);
         else if(player == 2)//we are white
-            return minValue(state, searchDepth);
+            return minValue(state, searchDepth, Integer.MIN_VALUE, Integer.MAX_VALUE);
         else
             return new Pair(null, 0);
         // System.out.println("\nChosen move: " + result.move + " with minimax value: " + result.score);
@@ -64,7 +64,7 @@ public class MinimaxAI {
      * @param remainingDepth The remaining depth to search
      * @return A Pair containing the best move and its score.
      */
-    private Pair maxValue(GameState state, int remainingDepth) {
+    private Pair maxValue(GameState state, int remainingDepth, int alpha, int beta) {
         if (isTerminal(state)) {
             // If the game is over, return the utility value of the state
             return new Pair(null, utility(state));
@@ -79,9 +79,9 @@ public class MinimaxAI {
         
         if (actions.isEmpty()) {
             // If no legal moves, pass turn to opponent
-            System.out.println("No legal moves available for MAX. Passing turn.");
+            //System.out.println("No legal moves available for MAX. Passing turn.");
             state.changePlayer();
-            return minValue(state, remainingDepth - 1);
+            return minValue(state, remainingDepth - 1, alpha, beta);
         }
         
         int v = Integer.MIN_VALUE; // like minus infinity
@@ -92,13 +92,17 @@ public class MinimaxAI {
         for (Position a : actions) {
             GameState nextState = result(state, a);
             
-            Pair minValueResult = minValue(nextState, remainingDepth - 1);
+            Pair minValueResult = minValue(nextState, remainingDepth - 1, alpha, beta);
             
             //System.out.println("Move " + a + " has minimax value: " + minValueResult.score);
             
             if (minValueResult.score > v) {
                 v = minValueResult.score;
                 move = a;
+                alpha = Math.max(alpha, v);
+            }
+            if (v >= beta){
+                return new Pair(move, v);
             }
         }
         
@@ -111,7 +115,7 @@ public class MinimaxAI {
      * @param remainingDepth The remaining depth to search
      * @return A Pair containing the best move and its score.
      */
-    private Pair minValue(GameState state, int remainingDepth) {
+    private Pair minValue(GameState state, int remainingDepth,int alpha, int beta) {
         if (isTerminal(state)) {
             // If the game is over, return the utility value of the state
             return new Pair(null, utility(state));
@@ -128,7 +132,7 @@ public class MinimaxAI {
             // If no legal moves, pass turn to opponent
             System.out.println("No legal moves available for MIN. Passing turn.");
             state.changePlayer();
-            return maxValue(state, remainingDepth - 1);
+            return maxValue(state, remainingDepth - 1, alpha, beta);
         }
         
         int v = Integer.MAX_VALUE; // like plus infinity
@@ -137,11 +141,15 @@ public class MinimaxAI {
         for (Position a : actions) {
             GameState nextState = result(state, a);
             
-            Pair maxValueResult = maxValue(nextState, remainingDepth - 1);
+            Pair maxValueResult = maxValue(nextState, remainingDepth - 1, alpha, beta);
             
             if (maxValueResult.score < v) {
                 v = maxValueResult.score;
                 move = a;
+                beta = Math.min(beta, v);
+            }
+            if(v <= alpha){
+                return new Pair(move, v);
             }
         }
         
