@@ -14,15 +14,15 @@ public class MinimaxAI {
     
   // Weighted board positioning for the evaluation function
   private static final int[][] POSITION_WEIGHTS = {
-    {100, -20, 10, 5, 5, 10, -20, 100},   // Row 0
-    {-20, -50, -2, -2, -2, -2, -50, -20}, // Row 1
-    {10, -2, 1, 1, 1, 1, -2, 10},         // Row 2
-    {5, -2, 1, 1, 1, 1, -2, 5},           // Row 3
-    {5, -2, 1, 1, 1, 1, -2, 5},           // Row 4
-    {10, -2, 1, 1, 1, 1, -2, 10},         // Row 5
-    {-20, -50, -2, -2, -2, -2, -50, -20}, // Row 6
-    {100, -20, 10, 5, 5, 10, -20, 100}    // Row 7
-};
+    {50, -10, 5, 2, 2, 5, -10, 50},       // Row 0
+    {-10, -25, -1, -1, -1, -1, -25, -10}  // Row 1
+    {5, -1, 1, 1, 1, 1, -1, 5},           // Row 2
+    {2, -1, 1, 1, 1, 1, -1, 2},           // Row 3
+    {2, -1, 1, 1, 1, 1, -1, 2},           // Row 4
+    {5, -1, 1, 1, 1, 1, -1, 5},           // Row 5
+    {-10, -25, -1, -1, -1, -1, -25, -10}, // Row 6
+    {50, -10, 5, 2, 2, 5, -10, 50}        // Row 7
+   };
 
     public MinimaxAI() {
         this(4);
@@ -205,7 +205,10 @@ public class MinimaxAI {
                 }
             }
         }
-        
+
+         // To print the final score difference for debugging and performance tracking
+         System.out.println("Final Score Difference: " + score);
+
         return score;
     }
     
