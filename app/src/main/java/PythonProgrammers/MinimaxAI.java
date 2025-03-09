@@ -79,12 +79,12 @@ public class MinimaxAI {
     private Pair maxValue(GameState state, int remainingDepth, int alpha, int beta) {
         if (isTerminal(state)) {
             // If the game is over, return the utility value of the state
-            return new Pair(null, quiescenceSearch(state, alpha, beta, true)); // Using quiescence search for stable evaluation
+            return new Pair(null, utility(state)); // Simplified: use utility directly
         }
         
         if (remainingDepth <= 0) {
             // If we've reached the depth limit, use the evaluation function
-            return new Pair(null, quiescenceSearch(state, alpha, beta, true)); 
+            return new Pair(null, utility(state)); // Simplified: use evaluateBoard directly
         }
         
         ArrayList<Position> actions = state.legalMoves();
@@ -135,7 +135,7 @@ public class MinimaxAI {
         
         if (remainingDepth <= 0) {
             // If we've reached the depth limit, use the evaluation function
-            return new Pair(null, quiescenceSearch(state, alpha, beta, false)); // Quiescence search for stable evaluation
+            return new Pair(null, evaluateBoard(state));
         }
         
         ArrayList<Position> actions = state.legalMoves();
@@ -191,60 +191,23 @@ public class MinimaxAI {
         int[] [] board = state.getBoard();
         int size = board.length;
         int score = 0;
-
-        // Using weighted positioning to evaluate the board
+        
+        // Evaluate the board based on piece count and position
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (board[i][j] == 1) { // Black token
-                    score += POSITION_WEIGHTS[i][j];
-                } else if (board[i][j] == 2) { // White token
-                    score -= POSITION_WEIGHTS[i][j];
+                if (board[i][j] == 1) { // Black pieces (MAX)
+                    score += 1; // Each piece is worth 1 point
+                    score += POSITION_WEIGHTS[i][j]; // Add position-based weight
+                } else if (board[i][j] == 2) { // White pieces (MIN)
+                    score -= 1; // Each opponent piece is worth -1 point
+                    score -= POSITION_WEIGHTS[i][j]; // Subtract position-based weight
                 }
             }
         }
+        
         return score;
     }
     
-     /**
-     * Using Quiescence Search to ensure that the evaluation doesn't occur in the middle of a volatile state.
-     * It continues searching until the position stabilizes (no major captures happening).
-     */
-    private int quiescenceSearch(GameState state, int alpha, int beta, boolean maximizing) {
-        int standPat = evaluateBoard(state); // Evaluate the current board state
-    
-        if (maximizing) {
-            // If the current score is already better than beta, stop searching (prune)
-            if (standPat >= beta) return beta;
-            // Update alpha to the best score found so far
-            alpha = Math.max(alpha, standPat);
-        } else {
-            // If the current score is already worse than alpha, stop searching (prune)
-            if (standPat <= alpha) return alpha;
-            // Update beta to the best score found so far
-            beta = Math.min(beta, standPat);
-        }
-    
-            // Continue searching if there are legal moves (unstable position)
-    for (Position move : state.legalMoves()) {
-        GameState nextState = result(state, move);
-        int eval = quiescenceSearch(nextState, alpha, beta, !maximizing); // Recursively evaluate
-
-        if (maximizing) {
-            // Update alpha to the best score found so far
-            alpha = Math.max(alpha, eval);
-            // If alpha is better than beta, stop searching (prune)
-            if (alpha >= beta) break;
-        } else {
-            // Update beta to the best score found so far
-            beta = Math.min(beta, eval);
-            // If beta is worse than alpha, stop searching (prune)
-            if (beta <= alpha) break;
-        }
-    }
-
-    // To return the best score found for the current player
-    return maximizing ? alpha : beta;
-}
     /**
      * Helper class for a move and its score.
      */
