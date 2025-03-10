@@ -16,7 +16,7 @@ public class MinimaxAI {
   // Weighted board positioning for the evaluation function
   private static final int[][] POSITION_WEIGHTS = {
     {50, -10, 5, 2, 2, 5, -10, 50},       // Row 0
-    {-10, -25, -1, -1, -1, -1, -25, -10}  // Row 1
+    {-10, -25, -1, -1, -1, -1, -25, -10},  // Row 1
     {5, -1, 1, 1, 1, 1, -1, 5},           // Row 2
     {2, -1, 1, 1, 1, 1, -1, 2},           // Row 3
     {2, -1, 1, 1, 1, 1, -1, 2},           // Row 4
