@@ -1,4 +1,4 @@
-package provided;
+package Provided;
 import java.util.ArrayList;
 /**
  * Class to represent the state of a game of Othello.  The state is defined by a 2-dimensional

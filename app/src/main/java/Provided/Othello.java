@@ -1,5 +1,5 @@
 
-package provided;
+package Provided;
 import javax.swing.*;
 
 import java.io.IOException;

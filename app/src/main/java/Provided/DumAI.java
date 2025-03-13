@@ -1,4 +1,4 @@
-package provided;
+package Provided;
 import java.util.ArrayList;
 /**
  * A simple OthelloAI-implementation. The method to decide the next move just

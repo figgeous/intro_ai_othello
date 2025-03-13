@@ -1,6 +1,7 @@
-package pp; //pp = Python programmers
+package PythonProgrammers;
 import java.util.ArrayList;
-import provided.*;
+import Provided.Position;
+import Provided.GameState;
 
 /**
  * Based on the pseudocode for the minimax algorithm from pg. 196 of the textbook.

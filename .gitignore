@@ -1,5 +1,13 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=java
 
+## hidden files ##
+.*
+.*/
+
+# exceptions
+!.gitignore
+!.gitmodules
+
 ### Java ###
 # Compiled class file
 *.class

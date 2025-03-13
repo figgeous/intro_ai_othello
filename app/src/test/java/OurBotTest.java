@@ -1,7 +1,5 @@
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import java.io.*;
 import static org.junit.Assert.*;
 
 public class OurBotTest{
@@ -15,16 +13,16 @@ public class OurBotTest{
     public void BeforeTest(){
         winner = -1;
         timeElapsed = 0;
-        provided.Othello.resetGame();
+        Provided.Othello.resetGame();
     }
 
     @Test
     public void WinningAsBlack_n8() throws InterruptedException{
-        String[] args = {"pp.OurBot","provided.DumAI", "8"};
+        String[] args = {"PythonProgrammers.OurBot","Provided.DumAI", "8"};
         // Run main method    
-        Thread gameThread =  new Thread(() -> provided.Othello.main(args));
+        Thread gameThread =  new Thread(() -> Provided.Othello.main(args));
         gameThread.start();
-        while(((winner = provided.Othello.getWinner()) <0) && timeElapsed < maxGameTime){
+        while(((winner = Provided.Othello.getWinner()) <0) && timeElapsed < maxGameTime){
             Thread.sleep(millisecondsDelay);
             timeElapsed += millisecondsDelay;
         };
@@ -33,11 +31,11 @@ public class OurBotTest{
 
     @Test
     public void WinningAsWhite_n8() throws InterruptedException{
-        String[] args = {"provided.DumAI", "pp.OurBot", "8"};
+        String[] args = {"Provided.DumAI", "PythonProgrammers.OurBot", "8"};
         // Run main method    
-        Thread gameThread =  new Thread(() -> provided.Othello.main(args));
+        Thread gameThread =  new Thread(() -> Provided.Othello.main(args));
         gameThread.start();
-        while(((winner = provided.Othello.getWinner()) <0) && timeElapsed < maxGameTime){
+        while(((winner = Provided.Othello.getWinner()) <0) && timeElapsed < maxGameTime){
             Thread.sleep(millisecondsDelay);
             timeElapsed += millisecondsDelay;
         };

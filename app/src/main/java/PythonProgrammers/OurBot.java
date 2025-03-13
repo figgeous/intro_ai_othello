@@ -1,5 +1,5 @@
-package pp;
-import provided.*;
+package PythonProgrammers;
+import Provided.*;
 /**
  * Implementation of our bot. Uses the minimax algorithm to make decisions.
  */
