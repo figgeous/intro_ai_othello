@@ -192,7 +192,7 @@ public class MinimaxAI {
         int[] [] board = state.getBoard();
         int size = board.length;
         int score = 0;
-        
+
         // Evaluate the board based on piece count and position
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -211,7 +211,7 @@ public class MinimaxAI {
 
         return score;
     }
-    
+
     /**
      * Helper class for a move and its score.
      */
