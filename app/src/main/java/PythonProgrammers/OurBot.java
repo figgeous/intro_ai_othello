@@ -14,7 +14,7 @@ public class OurBot implements IOthelloAI {
     }
     
     public OurBot() {
-        this(8); //  8 ply is four full moves
+        this(6); //  6 ply is three full moves
     }
     
     /**

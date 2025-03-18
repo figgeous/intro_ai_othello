@@ -11,21 +11,10 @@ import Provided.GameState;
  */
 public class MinimaxAI {
     private int searchDepth;  // The maximum number of ply (half-moves) to search
-    
-  // Weighted board positioning for the evaluation function
-  private static final int[][] POSITION_WEIGHTS = {
-    {50, -10, 5, 2, 2, 5, -10, 50},       // Row 0
-    {-10, -25, -1, -1, -1, -1, -25, -10},  // Row 1
-    {5, -1, 1, 1, 1, 1, -1, 5},           // Row 2
-    {2, -1, 1, 1, 1, 1, -1, 2},           // Row 3
-    {2, -1, 1, 1, 1, 1, -1, 2},           // Row 4
-    {5, -1, 1, 1, 1, 1, -1, 5},           // Row 5
-    {-10, -25, -1, -1, -1, -1, -25, -10}, // Row 6
-    {50, -10, 5, 2, 2, 5, -10, 50}        // Row 7
-   };
+    private boolean hasPrintedResult = false;
 
     public MinimaxAI() {
-        this(4);
+        this(6);
     }
     
     /**
@@ -42,15 +31,14 @@ public class MinimaxAI {
      */
     public Pair findBestMove(GameState state, int player) {
         // System.out.println("\nLegal moves: " + state.legalMoves());
-        
+        Pair result;
         if(player == 1) //we are black
-            return maxValue(state, searchDepth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            result = maxValue(state, searchDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         else if(player == 2)//we are white
-            return minValue(state, searchDepth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            result =  minValue(state, searchDepth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         else
-            return new Pair(null, 0);
-        // System.out.println("\nChosen move: " + result.move + " with minimax value: " + result.score);
-        // System.out.println("----------------------------------------");
+            result =  new Pair(null, 0);
+            return result;
     }
     
     /**
@@ -62,14 +50,20 @@ public class MinimaxAI {
         return state.isFinished();
     }
     
+
     /**
      * Returns the utility value of a terminal state.
-     * @param state
+     * @param state The current game state.
      * @return The utility value.
      */
     private int utility(GameState state) {
+        if (!hasPrintedResult) {
+            printEvaluationDetails(state);
+            hasPrintedResult = true; // Ensure results are printed only once
+        }
         return evaluateBoard(state);
     }
+
     
     /**
      * MAX-VALUE function from the pseudocode.
@@ -77,7 +71,7 @@ public class MinimaxAI {
      * @param remainingDepth The remaining depth to search
      * @return A Pair containing the best move and its score.
      */
-    private Pair maxValue(GameState state, int remainingDepth, int alpha, int beta) {
+    private Pair maxValue(GameState state, int remainingDepth, int alpha, int beta, boolean isRoot) {
         if (isTerminal(state)) {
             // If the game is over, return the utility value of the state
             return new Pair(null, utility(state)); // Simplified: use utility directly
@@ -85,7 +79,7 @@ public class MinimaxAI {
         
         if (remainingDepth <= 0) {
             // If we've reached the depth limit, use the evaluation function
-            return new Pair(null, utility(state)); // Simplified: use evaluateBoard directly
+            return new Pair(null, evaluateBoard(state)); // Simplified: use evaluateBoard directly
         }
         
         ArrayList<Position> actions = state.legalMoves();
@@ -94,7 +88,7 @@ public class MinimaxAI {
             // If no legal moves, pass turn to opponent
             //System.out.println("No legal moves available for MAX. Passing turn.");
             state.changePlayer();
-            return minValue(state, remainingDepth - 1, alpha, beta);
+            return minValue(state, remainingDepth - 1, alpha, beta, false);
         }
         
         int v = Integer.MIN_VALUE; // like minus infinity
@@ -104,8 +98,7 @@ public class MinimaxAI {
         
         for (Position a : actions) {
             GameState nextState = result(state, a);
-            
-            Pair minValueResult = minValue(nextState, remainingDepth - 1, alpha, beta);
+            Pair minValueResult = minValue(nextState, remainingDepth - 1, alpha, beta, false);
             
             //System.out.println("Move " + a + " has minimax value: " + minValueResult.score);
             
@@ -128,7 +121,7 @@ public class MinimaxAI {
      * @param remainingDepth The remaining depth to search
      * @return A Pair containing the best move and its score.
      */
-    private Pair minValue(GameState state, int remainingDepth,int alpha, int beta) {
+     private Pair minValue(GameState state, int remainingDepth, int alpha, int beta, boolean isRoot) {
         if (isTerminal(state)) {
             // If the game is over, return the utility value of the state
             return new Pair(null, utility(state));
@@ -145,7 +138,7 @@ public class MinimaxAI {
             // If no legal moves, pass turn to opponent
             System.out.println("No legal moves available for MIN. Passing turn.");
             state.changePlayer();
-            return maxValue(state, remainingDepth - 1, alpha, beta);
+            return maxValue(state, remainingDepth - 1, alpha, beta, false);
         }
         
         int v = Integer.MAX_VALUE; // like plus infinity
@@ -154,7 +147,7 @@ public class MinimaxAI {
         for (Position a : actions) {
             GameState nextState = result(state, a);
             
-            Pair maxValueResult = maxValue(nextState, remainingDepth - 1, alpha, beta);
+            Pair maxValueResult = maxValue(nextState, remainingDepth - 1, alpha, beta, false);
             
             if (maxValueResult.score < v) {
                 v = maxValueResult.score;
@@ -189,28 +182,105 @@ public class MinimaxAI {
      * @return The score of the board.
      */
     private int evaluateBoard(GameState state) {
-        int[] [] board = state.getBoard();
-        int size = board.length;
-        int score = 0;
+        // Count tokens
+        int[] tokens = state.countTokens();
+        int blackTokens = tokens[0];
+        int whiteTokens = tokens[1];
 
-        // Evaluate the board based on piece count and position
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if (board[i][j] == 1) { // Black pieces (MAX)
-                    score += 1; // Each piece is worth 1 point
-                    score += POSITION_WEIGHTS[i][j]; // Add position-based weight
-                } else if (board[i][j] == 2) { // White pieces (MIN)
-                    score -= 1; // Each opponent piece is worth -1 point
-                    score -= POSITION_WEIGHTS[i][j]; // Subtract position-based weight
-                }
-            }
-        }
+        // Count corners
+        int blackCorners = countCornerTokens(state, 1); // Count corners for Black
+        int whiteCorners = countCornerTokens(state, 2); // Count corners for White
 
-         // To print the final score difference for debugging and performance tracking
-         System.out.println("Final Score Difference: " + score);
+        // Count edges
+        int blackEdges = countEdgeTokens(state, 1); // Count edges for Black
+        int whiteEdges = countEdgeTokens(state, 2); // Count edges for White
+
+        // Count mobility (number of legal moves)
+        int blackMobility = state.legalMoves().size();
+        state.changePlayer(); // Switch to the other player
+        int whiteMobility = state.legalMoves().size();
+        state.changePlayer(); // Switch back to the original player
+
+        // Weighted evaluation
+        int score = (blackTokens - whiteTokens) + // Token difference
+                    (8 * (blackCorners - whiteCorners)) + // Corners are very valuable
+                    (5 * (blackEdges - whiteEdges)) + // Edges are moderately valuable
+                    (3 * (blackMobility - whiteMobility)); // Mobility is somewhat valuable
 
         return score;
     }
+
+    /**
+     * Counts the number of tokens in the corners for a given player.
+     * @param state The current game state.
+     * @param player The player (1 for Black, 2 for White).
+     * @return The number of corners controlled by the player.
+     */
+    private int countCornerTokens(GameState state, int player) {
+        int[][] board = state.getBoard();
+        int size = board.length;
+        int corners = 0;
+
+        // Check the four corners
+        if (board[0][0] == player) corners++;
+        if (board[0][size - 1] == player) corners++;
+        if (board[size - 1][0] == player) corners++;
+        if (board[size - 1][size - 1] == player) corners++;
+
+        return corners;
+    }
+
+    /**
+     * Counts the number of tokens on the edges for a given player.
+     * @param state The current game state.
+     * @param player The player (1 for Black, 2 for White).
+     * @return The number of edges controlled by the player.
+     */
+    private int countEdgeTokens(GameState state, int player) {
+        int[][] board = state.getBoard();
+        int size = board.length;
+        int edges = 0;
+
+        // Check the top and bottom edges
+        for (int i = 0; i < size; i++) {
+            if (board[0][i] == player) edges++;
+            if (board[size - 1][i] == player) edges++;
+        }
+
+        // Check the left and right edges (excluding corners to avoid double-counting)
+        for (int i = 1; i < size - 1; i++) {
+            if (board[i][0] == player) edges++;
+            if (board[i][size - 1] == player) edges++;
+        }
+
+        return edges;
+    }
+
+    /**
+     * Prints the final results (Black and White tokens, token difference, and the winner).
+     * @param state The current game state.
+     */
+    private void printEvaluationDetails(GameState state) {
+        int[] tokens = state.countTokens();
+        int blackTokens = tokens[0];
+        int whiteTokens = tokens[1];
+
+        // Print winner summary 
+        System.out.println("Black tokens: " + blackTokens);
+        System.out.println("White tokens: " + whiteTokens);
+        System.out.println("Token difference: " + (blackTokens - whiteTokens));
+
+        if (blackTokens > whiteTokens) {
+            System.out.println("Black wins!");
+        } else if (whiteTokens > blackTokens) {
+            System.out.println("White wins!");
+        } else {
+            System.out.println("It's a tie!");
+        }
+        System.out.println("----------------------------------------");
+    }
+
+
 
     /**
      * Helper class for a move and its score.
